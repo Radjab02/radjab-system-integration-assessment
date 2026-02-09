@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: java-producers
+
+server:
+  port: 8082
+
+# Kafka Configuration
+kafka:
+  bootstrap-servers: localhost:9093
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    acks: all
+    retries: 3
+    properties:
+      spring.json.add.type.headers: false
+  topics:
+    customer-data: customer_data
+    inventory-data: inventory_data
+
+# API Endpoints Configuration
+api:
+  mock-apis:
+    base-url: http://localhost:8081
+    endpoints:
+      customers: /api/customers
+      products: /api/products
+    timeout: 5000
+    retry:
+      max-attempts: 3
+      backoff-delay: 1000
+      backoff-multiplier: 2.0
+
+# Scheduling Configuration
+scheduling:
+  enabled: true
+  customer-sync:
+    initial-delay: 10000  # 10 seconds after startup
+    fixed-delay: 60000    # Every 60 seconds
+  inventory-sync:
+    initial-delay: 15000  # 15 seconds after startup
+    fixed-delay: 60000    # Every 60 seconds
+
+# Sync State Storage (in-memory for now)
+sync:
+  state:
+    storage-type: memory  # Options: memory, file, database
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.ecommerce.integration: DEBUG
+    org.springframework.kafka: INFO
+    org.springframework.retry: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

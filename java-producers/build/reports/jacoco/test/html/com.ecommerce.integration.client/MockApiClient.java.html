@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MockApiClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-producers</a> &gt; <a href="index.source.html" class="el_package">com.ecommerce.integration.client</a> &gt; <span class="el_source">MockApiClient.java</span></div><h1>MockApiClient.java</h1><pre class="source lang-java linenums">package com.ecommerce.integration.client;
+
+import com.ecommerce.integration.model.ApiResponse;
+import com.ecommerce.integration.model.Customer;
+import com.ecommerce.integration.model.Product;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Client for interacting with Mock APIs
+ * Implements retry logic for resilience
+ */
+@Component
+<span class="fc" id="L25">@Slf4j</span>
+public class MockApiClient {
+    
+    private final RestClient restClient;
+    
+    @Value(&quot;${api.mock-apis.endpoints.customers}&quot;)
+    private String customersEndpoint;
+    
+    @Value(&quot;${api.mock-apis.endpoints.products}&quot;)
+    private String productsEndpoint;
+    
+    public MockApiClient(@Value(&quot;${api.mock-apis.base-url}&quot;) String baseUrl,
+<span class="fc" id="L37">                        @Value(&quot;${api.mock-apis.timeout}&quot;) int timeout) {</span>
+<span class="fc" id="L38">        this.restClient = RestClient.builder()</span>
+<span class="fc" id="L39">                .baseUrl(baseUrl)</span>
+<span class="fc" id="L40">                .build();</span>
+        
+<span class="fc" id="L42">        log.info(&quot;MockApiClient initialized with base URL: {}&quot;, baseUrl);</span>
+<span class="fc" id="L43">    }</span>
+    
+    /**
+     * Fetch all customers (full sync)
+     */
+    @Retryable(
+        retryFor = {RestClientException.class},
+        maxAttemptsExpression = &quot;${api.mock-apis.retry.max-attempts}&quot;,
+        backoff = @Backoff(
+            delayExpression = &quot;${api.mock-apis.retry.backoff-delay}&quot;,
+            multiplierExpression = &quot;${api.mock-apis.retry.backoff-multiplier}&quot;
+        )
+    )
+    public List&lt;Customer&gt; fetchAllCustomers() {
+<span class="fc" id="L57">        log.info(&quot;Fetching all customers (full sync)&quot;);</span>
+        
+<span class="fc" id="L59">        List&lt;Customer&gt; allCustomers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L60">        int page = 0;</span>
+<span class="fc" id="L61">        final int pageSize = 100;</span>
+<span class="fc" id="L62">        boolean hasMore = true;</span>
+        
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        while (hasMore) {</span>
+<span class="fc" id="L65">            final int currentPage = page;</span>
+            try {
+<span class="fc" id="L67">                ApiResponse.CustomerPage response = restClient.get()</span>
+<span class="fc" id="L68">                        .uri(uriBuilder -&gt; uriBuilder</span>
+<span class="fc" id="L69">                                .path(customersEndpoint)</span>
+<span class="fc" id="L70">                                .queryParam(&quot;page&quot;, currentPage)</span>
+<span class="fc" id="L71">                                .queryParam(&quot;size&quot;, pageSize)</span>
+<span class="fc" id="L72">                                .build())</span>
+<span class="fc" id="L73">                        .retrieve()</span>
+<span class="fc" id="L74">                        .body(new ParameterizedTypeReference&lt;ApiResponse.CustomerPage&gt;() {});</span>
+                
+<span class="pc bpc" id="L76" title="2 of 4 branches missed.">                if (response != null &amp;&amp; response.getData() != null) {</span>
+<span class="fc" id="L77">                    allCustomers.addAll(response.getData());</span>
+<span class="fc" id="L78">                    log.debug(&quot;Fetched page {} with {} customers&quot;, currentPage, response.getData().size());</span>
+                    
+                    // Check if there are more pages
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                    hasMore = (currentPage + 1) * pageSize &lt; response.getTotal();</span>
+<span class="fc" id="L82">                    page++;</span>
+                } else {
+<span class="nc" id="L84">                    hasMore = false;</span>
+                }
+                
+<span class="fc" id="L87">            } catch (Exception e) {</span>
+<span class="fc" id="L88">                log.error(&quot;Error fetching customers page {}: {}&quot;, currentPage, e.getMessage());</span>
+<span class="fc" id="L89">                throw new RestClientException(&quot;Failed to fetch customers&quot;, e);</span>
+<span class="fc" id="L90">            }</span>
+<span class="fc" id="L91">        }</span>
+        
+<span class="fc" id="L93">        log.info(&quot;Successfully fetched {} customers&quot;, allCustomers.size());</span>
+<span class="fc" id="L94">        return allCustomers;</span>
+    }
+    
+    /**
+     * Fetch customers updated after a specific timestamp (incremental sync)
+     */
+    @Retryable(
+        retryFor = {RestClientException.class},
+        maxAttemptsExpression = &quot;${api.mock-apis.retry.max-attempts}&quot;,
+        backoff = @Backoff(
+            delayExpression = &quot;${api.mock-apis.retry.backoff-delay}&quot;,
+            multiplierExpression = &quot;${api.mock-apis.retry.backoff-multiplier}&quot;
+        )
+    )
+    public List&lt;Customer&gt; fetchCustomersSince(LocalDateTime since) {
+<span class="fc" id="L109">        log.info(&quot;Fetching customers updated since: {}&quot;, since);</span>
+        
+        // Note: Mock API doesn't support filtering by date yet
+        // In production, this would use a query parameter like ?updatedAfter=timestamp
+        // For now, we fetch all and filter client-side
+<span class="fc" id="L114">        List&lt;Customer&gt; allCustomers = fetchAllCustomers();</span>
+        
+<span class="fc" id="L116">        List&lt;Customer&gt; updatedCustomers = allCustomers.stream()</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                .filter(customer -&gt; customer.getCreatedDate() != null &amp;&amp; </span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                                   customer.getCreatedDate().isAfter(since))</span>
+<span class="fc" id="L119">                .toList();</span>
+        
+<span class="fc" id="L121">        log.info(&quot;Found {} customers updated since {}&quot;, updatedCustomers.size(), since);</span>
+<span class="fc" id="L122">        return updatedCustomers;</span>
+    }
+    
+    /**
+     * Fetch all products (full sync)
+     */
+    @Retryable(
+        retryFor = {RestClientException.class},
+        maxAttemptsExpression = &quot;${api.mock-apis.retry.max-attempts}&quot;,
+        backoff = @Backoff(
+            delayExpression = &quot;${api.mock-apis.retry.backoff-delay}&quot;,
+            multiplierExpression = &quot;${api.mock-apis.retry.backoff-multiplier}&quot;
+        )
+    )
+    public List&lt;Product&gt; fetchAllProducts() {
+<span class="fc" id="L137">        log.info(&quot;Fetching all products (full sync)&quot;);</span>
+        
+<span class="fc" id="L139">        List&lt;Product&gt; allProducts = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L140">        int page = 0;</span>
+<span class="fc" id="L141">        final int pageSize = 100;</span>
+<span class="fc" id="L142">        boolean hasMore = true;</span>
+        
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        while (hasMore) {</span>
+<span class="fc" id="L145">            final int currentPage = page;</span>
+            try {
+<span class="fc" id="L147">                ApiResponse.ProductPage response = restClient.get()</span>
+<span class="fc" id="L148">                        .uri(uriBuilder -&gt; uriBuilder</span>
+<span class="fc" id="L149">                                .path(productsEndpoint)</span>
+<span class="fc" id="L150">                                .queryParam(&quot;page&quot;, currentPage)</span>
+<span class="fc" id="L151">                                .queryParam(&quot;size&quot;, pageSize)</span>
+<span class="fc" id="L152">                                .build())</span>
+<span class="fc" id="L153">                        .retrieve()</span>
+<span class="fc" id="L154">                        .body(new ParameterizedTypeReference&lt;ApiResponse.ProductPage&gt;() {});</span>
+                
+<span class="pc bpc" id="L156" title="2 of 4 branches missed.">                if (response != null &amp;&amp; response.getData() != null) {</span>
+<span class="fc" id="L157">                    allProducts.addAll(response.getData());</span>
+<span class="fc" id="L158">                    log.debug(&quot;Fetched page {} with {} products&quot;, currentPage, response.getData().size());</span>
+                    
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                    hasMore = (currentPage + 1) * pageSize &lt; response.getTotal();</span>
+<span class="fc" id="L161">                    page++;</span>
+                } else {
+<span class="nc" id="L163">                    hasMore = false;</span>
+                }
+                
+<span class="fc" id="L166">            } catch (Exception e) {</span>
+<span class="fc" id="L167">                log.error(&quot;Error fetching products page {}: {}&quot;, currentPage, e.getMessage());</span>
+<span class="fc" id="L168">                throw new RestClientException(&quot;Failed to fetch products&quot;, e);</span>
+<span class="fc" id="L169">            }</span>
+<span class="fc" id="L170">        }</span>
+        
+<span class="fc" id="L172">        log.info(&quot;Successfully fetched {} products&quot;, allProducts.size());</span>
+<span class="fc" id="L173">        return allProducts;</span>
+    }
+    
+    /**
+     * Fetch products updated after a specific timestamp (incremental sync)
+     */
+    @Retryable(
+        retryFor = {RestClientException.class},
+        maxAttemptsExpression = &quot;${api.mock-apis.retry.max-attempts}&quot;,
+        backoff = @Backoff(
+            delayExpression = &quot;${api.mock-apis.retry.backoff-delay}&quot;,
+            multiplierExpression = &quot;${api.mock-apis.retry.backoff-multiplier}&quot;
+        )
+    )
+    public List&lt;Product&gt; fetchProductsSince(LocalDateTime since) {
+<span class="fc" id="L188">        log.info(&quot;Fetching products updated since: {}&quot;, since);</span>
+        
+        // Note: Mock API doesn't support filtering by date yet
+        // In production, this would use a query parameter like ?updatedAfter=timestamp
+        // For now, we fetch all and filter client-side
+<span class="fc" id="L193">        List&lt;Product&gt; allProducts = fetchAllProducts();</span>
+        
+<span class="fc" id="L195">        List&lt;Product&gt; updatedProducts = allProducts.stream()</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                .filter(product -&gt; product.getLastUpdated() != null &amp;&amp; </span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">                                  product.getLastUpdated().isAfter(since))</span>
+<span class="fc" id="L198">                .toList();</span>
+        
+<span class="fc" id="L200">        log.info(&quot;Found {} products updated since {}&quot;, updatedProducts.size(), since);</span>
+<span class="fc" id="L201">        return updatedProducts;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

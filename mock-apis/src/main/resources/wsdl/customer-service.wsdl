@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://ecommerce.com/crm/soap"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             targetNamespace="http://ecommerce.com/crm/soap"
+             name="CustomerService">
+
+    <types>
+        <xsd:schema targetNamespace="http://ecommerce.com/crm/soap">
+            
+            <!-- Add Customer Request -->
+            <xsd:element name="AddCustomerRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="name" type="xsd:string"/>
+                        <xsd:element name="email" type="xsd:string"/>
+                        <xsd:element name="phone" type="xsd:string" minOccurs="0"/>
+                        <xsd:element name="address" type="xsd:string" minOccurs="0"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Add Customer Response -->
+            <xsd:element name="AddCustomerResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="customer" type="tns:Customer"/>
+                        <xsd:element name="status" type="xsd:string"/>
+                        <xsd:element name="message" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Customer Complex Type -->
+            <xsd:complexType name="Customer">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:string"/>
+                    <xsd:element name="name" type="xsd:string"/>
+                    <xsd:element name="email" type="xsd:string"/>
+                    <xsd:element name="phone" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="address" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="createdDate" type="xsd:dateTime"/>
+                    <xsd:element name="status" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Fault Type -->
+            <xsd:element name="ServiceFault">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="faultCode" type="xsd:string"/>
+                        <xsd:element name="faultMessage" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+        </xsd:schema>
+    </types>
+
+    <!-- Messages -->
+    <message name="AddCustomerRequestMessage">
+        <part name="parameters" element="tns:AddCustomerRequest"/>
+    </message>
+
+    <message name="AddCustomerResponseMessage">
+        <part name="parameters" element="tns:AddCustomerResponse"/>
+    </message>
+
+    <message name="ServiceFaultMessage">
+        <part name="fault" element="tns:ServiceFault"/>
+    </message>
+
+    <!-- Port Type -->
+    <portType name="CustomerServicePortType">
+        <operation name="AddCustomer">
+            <input message="tns:AddCustomerRequestMessage"/>
+            <output message="tns:AddCustomerResponseMessage"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="CustomerServiceBinding" type="tns:CustomerServicePortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="AddCustomer">
+            <soap:operation soapAction="http://ecommerce.com/crm/soap/AddCustomer"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+            <fault name="ServiceFault">
+                <soap:fault name="ServiceFault" use="literal"/>
+            </fault>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="CustomerService">
+        <documentation>SOAP Web Service for Customer Management</documentation>
+        <port name="CustomerServicePort" binding="tns:CustomerServiceBinding">
+            <soap:address location="http://localhost:8081/ws/customers"/>
+        </port>
+    </service>
+
+</definitions>

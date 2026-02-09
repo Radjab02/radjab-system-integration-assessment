@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SyncStateRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-producers</a> &gt; <a href="index.source.html" class="el_package">com.ecommerce.integration.repository</a> &gt; <span class="el_source">SyncStateRepository.java</span></div><h1>SyncStateRepository.java</h1><pre class="source lang-java linenums">package com.ecommerce.integration.repository;
+
+import com.ecommerce.integration.model.SyncState;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * In-memory repository for tracking sync state
+ * In production, this would use a database or distributed cache
+ */
+@Repository
+<span class="fc" id="L17">@Slf4j</span>
+<span class="nc" id="L18">public class SyncStateRepository {</span>
+    
+<span class="nc" id="L20">    private final Map&lt;String, SyncState&gt; syncStates = new ConcurrentHashMap&lt;&gt;();</span>
+    
+    public Optional&lt;SyncState&gt; findBySourceType(String sourceType) {
+<span class="nc" id="L23">        return Optional.ofNullable(syncStates.get(sourceType));</span>
+    }
+    
+    public SyncState save(SyncState syncState) {
+<span class="nc" id="L27">        syncState.setUpdatedAt(LocalDateTime.now());</span>
+        
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (syncState.getCreatedAt() == null) {</span>
+<span class="nc" id="L30">            syncState.setCreatedAt(LocalDateTime.now());</span>
+        }
+        
+<span class="nc" id="L33">        syncStates.put(syncState.getSourceType(), syncState);</span>
+<span class="nc" id="L34">        log.debug(&quot;Saved sync state for {}: {}&quot;, syncState.getSourceType(), syncState);</span>
+        
+<span class="nc" id="L36">        return syncState;</span>
+    }
+    
+    public void updateLastSyncTime(String sourceType, LocalDateTime syncTime, long recordCount) {
+<span class="nc" id="L40">        SyncState state = syncStates.get(sourceType);</span>
+        
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (state == null) {</span>
+<span class="nc" id="L43">            state = SyncState.builder()</span>
+<span class="nc" id="L44">                    .sourceType(sourceType)</span>
+<span class="nc" id="L45">                    .initialSyncCompleted(true)</span>
+<span class="nc" id="L46">                    .totalRecordsSynced(recordCount)</span>
+<span class="nc" id="L47">                    .lastSyncRecordCount(recordCount)</span>
+<span class="nc" id="L48">                    .build();</span>
+        } else {
+<span class="nc" id="L50">            state.setTotalRecordsSynced(state.getTotalRecordsSynced() + recordCount);</span>
+<span class="nc" id="L51">            state.setLastSyncRecordCount(recordCount);</span>
+<span class="nc" id="L52">            state.setInitialSyncCompleted(true);</span>
+        }
+        
+<span class="nc" id="L55">        state.setLastSyncTime(syncTime);</span>
+<span class="nc" id="L56">        save(state);</span>
+<span class="nc" id="L57">    }</span>
+    
+    public boolean isInitialSyncCompleted(String sourceType) {
+<span class="nc" id="L60">        return findBySourceType(sourceType)</span>
+<span class="nc" id="L61">                .map(SyncState::isInitialSyncCompleted)</span>
+<span class="nc" id="L62">                .orElse(false);</span>
+    }
+    
+    public Optional&lt;LocalDateTime&gt; getLastSyncTime(String sourceType) {
+<span class="nc" id="L66">        return findBySourceType(sourceType)</span>
+<span class="nc" id="L67">                .map(SyncState::getLastSyncTime);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,398 @@
+openapi: 3.0.3
+info:
+  title: E-Commerce Integration APIs
+  description: Mock APIs for CRM, Inventory, and Analytics systems
+  version: 1.0.0
+  contact:
+    name: Systems Integration Team
+
+servers:
+  - url: http://localhost:8081
+    description: Mock CRM & Inventory Server
+  - url: http://localhost:8082
+    description: Mock Analytics Server
+
+tags:
+  - name: CRM
+    description: Customer Relationship Management operations
+  - name: Inventory
+    description: Product inventory operations
+  - name: Analytics
+    description: Analytics data ingestion
+
+paths:
+  /api/customers:
+    get:
+      tags:
+        - CRM
+      summary: Retrieve all customers
+      description: Fetch customer data from CRM system
+      operationId: getCustomers
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+                  page:
+                    type: integer
+                  size:
+                    type: integer
+                  total:
+                    type: integer
+              examples:
+                customerList:
+                  value:
+                    data:
+                      - id: "CUST001"
+                        name: "John Doe"
+                        email: "john.doe@example.com"
+                        phone: "+1234567890"
+                        address: "123 Main St, New York, NY 10001"
+                        createdDate: "2024-01-15T10:30:00Z"
+                        status: "ACTIVE"
+                      - id: "CUST002"
+                        name: "Jane Smith"
+                        email: "jane.smith@example.com"
+                        phone: "+1987654321"
+                        address: "456 Oak Ave, Los Angeles, CA 90001"
+                        createdDate: "2024-02-01T14:20:00Z"
+                        status: "ACTIVE"
+                    page: 0
+                    size: 100
+                    total: 2
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - CRM
+      summary: Create a new customer
+      description: Add a new customer to the CRM system
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+            examples:
+              newCustomer:
+                value:
+                  name: "Bob Johnson"
+                  email: "bob.johnson@example.com"
+                  phone: "+1555123456"
+                  address: "789 Pine Rd, Chicago, IL 60601"
+      responses:
+        '201':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/products:
+    get:
+      tags:
+        - Inventory
+      summary: Retrieve all products with inventory
+      description: Fetch product stock data from Inventory system
+      operationId: getProducts
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Page size
+          schema:
+            type: integer
+            default: 100
+        - name: inStock
+          in: query
+          description: Filter by stock availability
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  page:
+                    type: integer
+                  size:
+                    type: integer
+                  total:
+                    type: integer
+              examples:
+                productList:
+                  value:
+                    data:
+                      - id: "PROD001"
+                        productName: "Laptop Pro 15"
+                        sku: "LPT-PRO-15-BLK"
+                        stockQuantity: 45
+                        price: 1299.99
+                        category: "Electronics"
+                        lastUpdated: "2024-02-05T09:15:00Z"
+                      - id: "PROD002"
+                        productName: "Wireless Mouse"
+                        sku: "MSE-WRL-BLU"
+                        stockQuantity: 150
+                        price: 29.99
+                        category: "Accessories"
+                        lastUpdated: "2024-02-06T11:30:00Z"
+                      - id: "PROD003"
+                        productName: "USB-C Cable 2m"
+                        sku: "CBL-USBC-2M"
+                        stockQuantity: 0
+                        price: 15.99
+                        category: "Accessories"
+                        lastUpdated: "2024-02-04T16:45:00Z"
+                    page: 0
+                    size: 100
+                    total: 3
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/analytics/data:
+    post:
+      tags:
+        - Analytics
+      summary: Ingest analytics data
+      description: Accept merged customer and inventory data for analytics processing
+      operationId: ingestAnalyticsData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyticsData'
+            examples:
+              mergedData:
+                value:
+                  eventId: "EVT-20240207-001"
+                  timestamp: "2024-02-07T10:00:00Z"
+                  customers:
+                    - id: "CUST001"
+                      name: "John Doe"
+                      email: "john.doe@example.com"
+                  products:
+                    - id: "PROD001"
+                      productName: "Laptop Pro 15"
+                      stockQuantity: 45
+                  metadata:
+                    source: "integration-pipeline"
+                    version: "1.0"
+      responses:
+        '200':
+          description: Data ingested successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                  message:
+                    type: string
+                    example: "Data processed successfully"
+                  recordsProcessed:
+                    type: integer
+                    example: 2
+        '400':
+          description: Invalid data format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Customer:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+          description: Unique customer identifier
+          example: "CUST001"
+        name:
+          type: string
+          description: Customer full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Customer email address
+          example: "john.doe@example.com"
+        phone:
+          type: string
+          description: Customer phone number
+          example: "+1234567890"
+        address:
+          type: string
+          description: Customer mailing address
+          example: "123 Main St, New York, NY 10001"
+        createdDate:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: "2024-01-15T10:30:00Z"
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, SUSPENDED]
+          description: Customer account status
+          example: "ACTIVE"
+
+    CustomerRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: "Bob Johnson"
+        email:
+          type: string
+          format: email
+          example: "bob.johnson@example.com"
+        phone:
+          type: string
+          example: "+1555123456"
+        address:
+          type: string
+          example: "789 Pine Rd, Chicago, IL 60601"
+
+    Product:
+      type: object
+      required:
+        - id
+        - productName
+        - sku
+        - stockQuantity
+      properties:
+        id:
+          type: string
+          description: Unique product identifier
+          example: "PROD001"
+        productName:
+          type: string
+          description: Product display name
+          example: "Laptop Pro 15"
+        sku:
+          type: string
+          description: Stock keeping unit
+          example: "LPT-PRO-15-BLK"
+        stockQuantity:
+          type: integer
+          description: Available stock quantity
+          example: 45
+        price:
+          type: number
+          format: double
+          description: Product price
+          example: 1299.99
+        category:
+          type: string
+          description: Product category
+          example: "Electronics"
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Last inventory update timestamp
+          example: "2024-02-05T09:15:00Z"
+
+    AnalyticsData:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          type: string
+          description: Unique event identifier
+          example: "EVT-20240207-001"
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+          example: "2024-02-07T10:00:00Z"
+        customers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Additional metadata
+          example:
+            source: "integration-pipeline"
+            version: "1.0"
+
+    Error:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ecommerce.integration.client.MockApiClientTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-02-09T05:38:06.555Z" hostname="RADJDELLXPS1797" time="3.812">
+  <properties/>
+  <testcase name="fetchAllProducts_httpError_throws()" classname="com.ecommerce.integration.client.MockApiClientTest" time="3.264"/>
+  <testcase name="fetchProductsSince_filtersCorrectly()" classname="com.ecommerce.integration.client.MockApiClientTest" time="0.395"/>
+  <testcase name="fetchCustomersSince_filtersCorrectly()" classname="com.ecommerce.integration.client.MockApiClientTest" time="0.03"/>
+  <testcase name="fetchAllCustomers_httpError_throws()" classname="com.ecommerce.integration.client.MockApiClientTest" time="0.012"/>
+  <testcase name="fetchAllProducts_multiplePages_success()" classname="com.ecommerce.integration.client.MockApiClientTest" time="0.029"/>
+  <testcase name="fetchAllCustomers_multiplePages_success()" classname="com.ecommerce.integration.client.MockApiClientTest" time="0.026"/>
+  <testcase name="fetchAllCustomers_emptyResponse()" classname="com.ecommerce.integration.client.MockApiClientTest" time="0.02"/>
+  <system-out><![CDATA[07:38:08.071 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:54416/
+07:38:08.254 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all products (full sync)
+07:38:09.764 [Test worker] ERROR com.ecommerce.integration.client.MockApiClient -- Error fetching products page 0: 500 Server Error: [no body]
+07:38:09.831 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:61381/
+07:38:10.022 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching products updated since: 2026-02-08T07:38:09.832810800
+07:38:10.023 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all products (full sync)
+07:38:10.194 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Successfully fetched 2 products
+07:38:10.194 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Found 1 products updated since 2026-02-08T07:38:09.832810800
+07:38:10.227 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:61383/
+07:38:10.243 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching customers updated since: 2026-02-08T07:38:10.227791700
+07:38:10.243 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all customers (full sync)
+07:38:10.243 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Successfully fetched 2 customers
+07:38:10.243 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Found 1 customers updated since 2026-02-08T07:38:10.227791700
+07:38:10.261 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:61385/
+07:38:10.261 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all customers (full sync)
+07:38:10.261 [Test worker] ERROR com.ecommerce.integration.client.MockApiClient -- Error fetching customers page 0: 500 Server Error: [no body]
+07:38:10.284 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:61387/
+07:38:10.293 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all products (full sync)
+07:38:10.300 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Successfully fetched 4 products
+07:38:10.316 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:61389/
+07:38:10.316 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all customers (full sync)
+07:38:10.332 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Successfully fetched 4 customers
+07:38:10.351 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- MockApiClient initialized with base URL: http://127.0.0.1:61391/
+07:38:10.352 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Fetching all customers (full sync)
+07:38:10.367 [Test worker] INFO com.ecommerce.integration.client.MockApiClient -- Successfully fetched 0 customers
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

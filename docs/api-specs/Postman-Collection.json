@@ -1,0 +1,176 @@
+{
+  "info": {
+    "name": "E-Commerce Integration APIs",
+    "description": "Mock APIs for Systems Integration Assessment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "CRM APIs",
+      "item": [
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/customers?page=0&size=100",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "customers"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "100"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Customer (REST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob Johnson\",\n  \"email\": \"bob.johnson@example.com\",\n  \"phone\": \"+1555123456\",\n  \"address\": \"789 Pine Rd, Chicago, IL 60601\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/customers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Create Customer (SOAP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "text/xml; charset=utf-8"},
+              {"key": "SOAPAction", "value": "\"http://ecommerce.com/crm/soap/AddCustomer\""}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<soapenv:Envelope \n    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n    xmlns:crm=\"http://ecommerce.com/crm/soap\">\n   <soapenv:Body>\n      <crm:AddCustomerRequest>\n         <crm:name>Alice Cooper</crm:name>\n         <crm:email>alice.cooper@example.com</crm:email>\n         <crm:phone>+1222333444</crm:phone>\n         <crm:address>999 Rock Ave, Nashville, TN 37201</crm:address>\n      </crm:AddCustomerRequest>\n   </soapenv:Body>\n</soapenv:Envelope>"
+            },
+            "url": {
+              "raw": "http://localhost:8081/ws/customers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["ws", "customers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory APIs",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/products?page=0&size=100",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "products"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "100"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get In-Stock Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api/products?page=0&size=100&inStock=true",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "products"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "100"},
+                {"key": "inStock", "value": "true"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics APIs",
+      "item": [
+        {
+          "name": "Ingest Analytics Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"EVT-20240207-001\",\n  \"timestamp\": \"2024-02-07T10:00:00Z\",\n  \"customers\": [\n    {\n      \"id\": \"CUST001\",\n      \"name\": \"John Doe\",\n      \"email\": \"john.doe@example.com\",\n      \"phone\": \"+1234567890\",\n      \"address\": \"123 Main St, New York, NY 10001\",\n      \"createdDate\": \"2024-01-15T10:30:00Z\",\n      \"status\": \"ACTIVE\"\n    }\n  ],\n  \"products\": [\n    {\n      \"id\": \"PROD001\",\n      \"productName\": \"Laptop Pro 15\",\n      \"sku\": \"LPT-PRO-15-BLK\",\n      \"stockQuantity\": 45,\n      \"price\": 1299.99,\n      \"category\": \"Electronics\",\n      \"lastUpdated\": \"2024-02-05T09:15:00Z\"\n    }\n  ],\n  \"metadata\": {\n    \"source\": \"integration-pipeline\",\n    \"version\": \"1.0\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/analytics/data",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "analytics", "data"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documentation",
+      "item": [
+        {
+          "name": "Get WSDL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/ws/customers?wsdl",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["ws", "customers"],
+              "query": [
+                {"key": "wsdl", "value": null}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get OpenAPI Spec",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8081/api-docs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api-docs"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

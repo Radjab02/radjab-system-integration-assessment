@@ -1,0 +1,256 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ProducerController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.ecommerce.integration.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: ProducerController (com.ecommerce.integration.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ProducerController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/41)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.ecommerce.integration.controller;
+&nbsp;
+&nbsp;import com.ecommerce.integration.producer.CustomerProducerService;
+&nbsp;import com.ecommerce.integration.producer.InventoryProducerService;
+&nbsp;import com.ecommerce.integration.repository.SyncStateRepository;
+&nbsp;import lombok.RequiredArgsConstructor;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;import java.util.Map;
+&nbsp;
+&nbsp;/**
+&nbsp; * REST controller for manually triggering sync operations
+&nbsp; * Useful for testing and on-demand synchronization
+&nbsp; */
+&nbsp;@RestController
+&nbsp;@RequestMapping(&quot;/api/sync&quot;)
+&nbsp;@RequiredArgsConstructor
+<b class="nc">&nbsp;@Slf4j</b>
+&nbsp;public class ProducerController {
+&nbsp;    
+&nbsp;    private final CustomerProducerService customerProducerService;
+&nbsp;    private final InventoryProducerService inventoryProducerService;
+&nbsp;    private final SyncStateRepository syncStateRepository;
+&nbsp;    
+&nbsp;    /**
+&nbsp;     * Trigger full customer sync
+&nbsp;     */
+&nbsp;    @PostMapping(&quot;/customers/full&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; triggerCustomerFullSync() {
+<b class="nc">&nbsp;        log.info(&quot;REST: Triggering full customer sync&quot;);</b>
+&nbsp;        
+&nbsp;        try {
+<b class="nc">&nbsp;            customerProducerService.triggerFullSync();</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;SUCCESS&quot;,
+&nbsp;                    &quot;message&quot;, &quot;Full customer sync triggered successfully&quot;
+&nbsp;            ));
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Error triggering customer full sync&quot;, e);</b>
+<b class="nc">&nbsp;            return ResponseEntity.internalServerError().body(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;ERROR&quot;,
+<b class="nc">&nbsp;                    &quot;message&quot;, &quot;Failed to trigger sync: &quot; + e.getMessage()</b>
+&nbsp;            ));
+&nbsp;        }
+&nbsp;    }
+&nbsp;    
+&nbsp;    /**
+&nbsp;     * Trigger incremental customer sync
+&nbsp;     */
+&nbsp;    @PostMapping(&quot;/customers/incremental&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; triggerCustomerIncrementalSync() {
+<b class="nc">&nbsp;        log.info(&quot;REST: Triggering incremental customer sync&quot;);</b>
+&nbsp;        
+&nbsp;        try {
+<b class="nc">&nbsp;            customerProducerService.triggerIncrementalSync();</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;SUCCESS&quot;,
+&nbsp;                    &quot;message&quot;, &quot;Incremental customer sync triggered successfully&quot;
+&nbsp;            ));
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Error triggering customer incremental sync&quot;, e);</b>
+<b class="nc">&nbsp;            return ResponseEntity.internalServerError().body(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;ERROR&quot;,
+<b class="nc">&nbsp;                    &quot;message&quot;, &quot;Failed to trigger sync: &quot; + e.getMessage()</b>
+&nbsp;            ));
+&nbsp;        }
+&nbsp;    }
+&nbsp;    
+&nbsp;    /**
+&nbsp;     * Trigger full inventory sync
+&nbsp;     */
+&nbsp;    @PostMapping(&quot;/inventory/full&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; triggerInventoryFullSync() {
+<b class="nc">&nbsp;        log.info(&quot;REST: Triggering full inventory sync&quot;);</b>
+&nbsp;        
+&nbsp;        try {
+<b class="nc">&nbsp;            inventoryProducerService.triggerFullSync();</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;SUCCESS&quot;,
+&nbsp;                    &quot;message&quot;, &quot;Full inventory sync triggered successfully&quot;
+&nbsp;            ));
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Error triggering inventory full sync&quot;, e);</b>
+<b class="nc">&nbsp;            return ResponseEntity.internalServerError().body(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;ERROR&quot;,
+<b class="nc">&nbsp;                    &quot;message&quot;, &quot;Failed to trigger sync: &quot; + e.getMessage()</b>
+&nbsp;            ));
+&nbsp;        }
+&nbsp;    }
+&nbsp;    
+&nbsp;    /**
+&nbsp;     * Trigger incremental inventory sync
+&nbsp;     */
+&nbsp;    @PostMapping(&quot;/inventory/incremental&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; triggerInventoryIncrementalSync() {
+<b class="nc">&nbsp;        log.info(&quot;REST: Triggering incremental inventory sync&quot;);</b>
+&nbsp;        
+&nbsp;        try {
+<b class="nc">&nbsp;            inventoryProducerService.triggerIncrementalSync();</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;SUCCESS&quot;,
+&nbsp;                    &quot;message&quot;, &quot;Incremental inventory sync triggered successfully&quot;
+&nbsp;            ));
+&nbsp;        } catch (Exception e) {
+<b class="nc">&nbsp;            log.error(&quot;Error triggering inventory incremental sync&quot;, e);</b>
+<b class="nc">&nbsp;            return ResponseEntity.internalServerError().body(Map.of(</b>
+&nbsp;                    &quot;status&quot;, &quot;ERROR&quot;,
+<b class="nc">&nbsp;                    &quot;message&quot;, &quot;Failed to trigger sync: &quot; + e.getMessage()</b>
+&nbsp;            ));
+&nbsp;        }
+&nbsp;    }
+&nbsp;    
+&nbsp;    /**
+&nbsp;     * Get sync status for all sources
+&nbsp;     */
+&nbsp;    @GetMapping(&quot;/status&quot;)
+&nbsp;    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getSyncStatus() {
+<b class="nc">&nbsp;        log.info(&quot;REST: Getting sync status&quot;);</b>
+&nbsp;        
+<b class="nc">&nbsp;        var customerState = syncStateRepository.findBySourceType(&quot;CUSTOMER&quot;).orElse(null);</b>
+<b class="nc">&nbsp;        var productState = syncStateRepository.findBySourceType(&quot;PRODUCT&quot;).orElse(null);</b>
+&nbsp;        
+<b class="nc">&nbsp;        return ResponseEntity.ok(Map.of(</b>
+<b class="nc">&nbsp;                &quot;customer&quot;, customerState != null ? Map.of(</b>
+<b class="nc">&nbsp;                        &quot;initialSyncCompleted&quot;, customerState.isInitialSyncCompleted(),</b>
+<b class="nc">&nbsp;                        &quot;lastSyncTime&quot;, customerState.getLastSyncTime(),</b>
+<b class="nc">&nbsp;                        &quot;totalRecordsSynced&quot;, customerState.getTotalRecordsSynced(),</b>
+<b class="nc">&nbsp;                        &quot;lastSyncRecordCount&quot;, customerState.getLastSyncRecordCount()</b>
+<b class="nc">&nbsp;                ) : Map.of(&quot;status&quot;, &quot;NOT_STARTED&quot;),</b>
+<b class="nc">&nbsp;                &quot;inventory&quot;, productState != null ? Map.of(</b>
+<b class="nc">&nbsp;                        &quot;initialSyncCompleted&quot;, productState.isInitialSyncCompleted(),</b>
+<b class="nc">&nbsp;                        &quot;lastSyncTime&quot;, productState.getLastSyncTime(),</b>
+<b class="nc">&nbsp;                        &quot;totalRecordsSynced&quot;, productState.getTotalRecordsSynced(),</b>
+<b class="nc">&nbsp;                        &quot;lastSyncRecordCount&quot;, productState.getLastSyncRecordCount()</b>
+<b class="nc">&nbsp;                ) : Map.of(&quot;status&quot;, &quot;NOT_STARTED&quot;)</b>
+&nbsp;        ));
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-02-09 07:39</div>
+</div>
+</body>
+</html>

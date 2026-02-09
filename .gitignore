@@ -1,0 +1,85 @@
+############################
+# IntelliJ IDEA
+############################
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+############################
+# Java / JVM
+############################
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+############################
+# Gradle
+############################
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+############################
+# Maven (if ever used)
+############################
+target/
+
+############################
+# Docker
+############################
+*.env
+.env
+.env.*
+docker-compose.override.yml
+
+############################
+# OS Files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# Logs
+############################
+logs/
+*.log
+
+############################
+# Temporary / Cache
+############################
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+############################
+# Node (if any frontend/tools)
+############################
+node_modules/
+
+############################
+# Python (if present in polyglot setup)
+############################
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+############################
+# VS Code (optional)
+############################
+.vscode/
